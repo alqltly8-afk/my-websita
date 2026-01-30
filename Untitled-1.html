@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة صيد الكرة</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+    }
+
+    header {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 15px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    #hud {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      padding: 10px;
+      font-size: 18px;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    #gameArea {
+      height: 75vh;
+      margin: 20px;
+      border-radius: 15px;
+      background: #111;
+      position: relative;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    #ball {
+      width: 45px;
+      height: 45px;
+      background: radial-gradient(circle at top, #ff6b6b, #c0392b);
+      border-radius: 50%;
+      position: absolute;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+      cursor: pointer;
+    }
+
+    #overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-size: 22px;
+      z-index: 10;
+    }
+
+    #overlay button {
+      margin-top: 15px;
+      padding: 10px 25px;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>🎯 لعبة صيد الكرة</header>
+
+  <div id="hud">
+    <div>النقاط: <span id="score">0</span></div>
+    <div>الأخطاء: <span id="misses">0</span> / 2</div>
+  </div>
+
+  <div id="gameArea">
+    <div id="ball"></div>
+
+    <div id="overlay">
+      <div id="finalScore"></div>
+      <button onclick="restartGame()">إعادة اللعب</button>
+    </div>
+  </div>
+
+  <script>
+    const gameArea = document.getElementById("gameArea");
+    const ball = document.getElementById("ball");
+    const scoreText = document.getElementById("score");
+    const missesText = document.getElementById("misses");
+    const overlay = document.getElementById("overlay");
+    const finalScore = document.getElementById("finalScore");
+
+    let score = 0;
+    let misses = 0;
+    let gameOver = false;
+
+    // سرعة البداية (بطيئة)
+    let speedX = 1;
+    let speedY = 1;
+
+    let x = 100;
+    let y = 100;
+
+    function moveBall() {
+      if (gameOver) return;
+
+      const maxX = gameArea.clientWidth - 45;
+      const maxY = gameArea.clientHeight - 45;
+
+      x += speedX;
+      y += speedY;
+
+      if (x <= 0 || x >= maxX) speedX *= -1;
+      if (y <= 0 || y >= maxY) speedY *= -1;
+
+      ball.style.left = x + "px";
+      ball.style.top = y + "px";
+
+      requestAnimationFrame(moveBall);
+    }
+
+    ball.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (gameOver) return;
+
+      score++;
+      scoreText.innerText = score;
+
+      // زيادة السرعة مع النقاط
+      speedX *= 0.8;
+      speedY *= 0.8;
+    });
+
+    gameArea.addEventListener("click", () => {
+      if (gameOver) return;
+
+      misses++;
+      missesText.innerText = misses;
+
+      if (misses >= 2) {
+        endGame();
+      }
+    });
+
+    function endGame() {
+      gameOver = true;
+      overlay.style.display = "flex";
+      finalScore.innerText = "❌ انتهت اللعبة\nنقاطك: " + score;
+    }
+
+    function restartGame() {
+      score = 0;
+      misses = 0;
+      gameOver = false;
+
+      speedX = 2;
+      speedY = 2;
+
+      x = 100;
+      y = 100;
+
+      scoreText.innerText = score;
+      missesText.innerText = misses;
+
+      overlay.style.display = "none";
+      moveBall();
+    }
+
+    moveBall();
+  </script>
+
+</body>
+</html>
